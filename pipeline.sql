@@ -95,38 +95,42 @@ WITH
 )
 GO
 
-CREATE TABLE [zhuravel_schema].Vendor
-(
-  id int NULL,
-  name varchar(255) NULL
-)
-WITH
-(
-  DISTRIBUTION = REPLICATE,
-  CLUSTERED COLUMNSTORE INDEX
-)
+DROP TABLE zhuravel_schema.Vendor
 GO
 
-CREATE TABLE [zhuravel_schema].RateCode
-(
-  ID int NOT NULL,
-  Name varchar(50) NULL
-)
+CREATE TABLE [zhuravel_schema].[Vendor]
 WITH
 (
-  DISTRIBUTION = REPLICATE,
-  CLUSTERED COLUMNSTORE INDEX
+  DISTRIBUTION = ROUND_ROBIN
 )
+AS SELECT DISTINCT VendorID FROM [zhuravel_schema].[fact_tripdata]
+WHERE VendorID IS NOT NULL;
 GO
 
-CREATE TABLE [zhuravel_schema].Payment_type
-(
-  ID int NOT NULL,
-  Name varchar(50) NULL
-)
+ALTER TABLE [zhuravel_schema].[Vendor]
+ADD [Name] varchar(50) NULL;
+GO
+
+CREATE TABLE [zhuravel_schema].[RateCode]
 WITH
 (
-  DISTRIBUTION = REPLICATE,
-  CLUSTERED COLUMNSTORE INDEX
+  DISTRIBUTION = ROUND_ROBIN
 )
+AS SELECT DISTINCT RateCodeID FROM [zhuravel_schema].[fact_tripdata]
+WHERE RateCodeID IS NOT NULL AND RateCodeID != 99;
 GO
+
+ALTER TABLE [zhuravel_schema].[RateCode]
+ADD [Name] varchar(50) NULL;
+GO
+
+CREATE TABLE [zhuravel_schema].[Payment_type]
+WITH
+(
+  DISTRIBUTION = ROUND_ROBIN
+)
+AS SELECT DISTINCT payment_type FROM [zhuravel_schema].[fact_tripdata]
+WHERE payment_type IS NOT NULL;
+
+ALTER TABLE [zhuravel_schema].[Payment_type]
+ADD [Name] varchar(50) NULL;
